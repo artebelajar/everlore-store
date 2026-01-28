@@ -10,14 +10,18 @@ import jwt from "jsonwebtoken";
 // import postgres from "postgres";
 // import { createClient } from "@supabase/supabase-js";
 
+//database
 import { db } from "./src/db/index.js";
 import { supabase } from "./src/db/storage.js";
 
 //router
-// import { register } from "./src/api/register.js";
-// import { login } from "./src/api/login.js";
+import { register } from "./src/api/register.js";
+import { login } from "./src/api/login.js";
 // import { auth } from "./src/api/auth.js";
-// import { addProduct } from "./src/api/addProduct.js";
+import { addProduct } from "./src/api/addProduct.js";
+import { getProduct } from "./src/api/getProduct.js";
+import { order } from "./src/api/orders.js";
+
 
 process.loadEnvFile();
 
@@ -32,43 +36,9 @@ const app = new Hono();
 
 app.use("*", cors());
 
-app.post("/api/register", async (c) => {
-try {
-    const { username, password } = await c.req.json();
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const user = await db.insert(schema.usersECommerce).values({
-      username,
-      password: hashedPassword,
-      role: "user",
-    });
-    return c.json(
-      { success: true, message: `Registrasi berhasil ${user[0]}` },
-      201,
-    );
-  } catch (error) {
-    console.error(error);
-    return c.json({ success: false, message: "Registrasi gagal" }, 500);
-  }
-});
+app.post("/api/register", register);
 
-app.post("/api/login", async (c) => {
-  const { username, password } = await c.req.json();
-
-  const user = await db.query.usersECommerce.findFirst({
-    where: eq(schema.usersECommerce.username, username),
-  });
-
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return c.json({ success: false, message: "Login gagal" }, 401);
-  }
-
-  const token = jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" },
-  );
-  return c.json({ success: true, message: user.role, token });
-});
+app.post("/api/login", login);
 
 const authMiddleware = async (c, next) => {
   const authHeader = c.req.header("Authorization");
@@ -90,122 +60,15 @@ app.get("/api/me", authMiddleware, (c) => {
   return c.json({
     success: true,
     user,
-  })
+  });
 });
 
 
-app.post("/api/products", authMiddleware, async (c) => {
-  try {
-    const body = await c.req.parseBody();
-    const imagefile = body["image"];
+app.post("/api/products", authMiddleware, addProduct);
 
-    if (!imagefile || !(imagefile instanceof File)) {
-      return c.json({ success: false, message: "gambar wajib" }, 400);
-    }
+app.get("/api/products", getProduct);
 
-    const fileName = `prod_${Date.now()}_${imagefile.name.replace(/\s/g, "_")}`;
-    const arrayBuffer = new Uint8Array(await imagefile.arrayBuffer());
-
-    const { error: uploadError } = await supabase.storage
-      .from("products")
-      .upload(fileName, arrayBuffer, {
-        contentType: imagefile.type,
-      });
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage.from("products").getPublicUrl(fileName);
-    const imageUrl = data.publicUrl;
-
-    await db.insert(schema.products).values({
-      name: body["name"],
-      description: body["description"],
-      price: body["price"],
-      stock: parseInt(body["stock"]),
-      categoryId: parseInt(body["categoryId"]),
-      imageUrl,
-    });
-
-    return c.json({ success: true, message: "Product created", imageUrl });
-  } catch (error) {
-    console.error("REAL ERROR:", error);
-
-    return c.json(
-      {
-        success: false,
-        message: "Error creating product",
-        error: error,
-      },
-      500,
-    );
-  }
-});
-
-app.get("/api/products", async (c) => {
-  const data = await db
-    .select()
-    .from(schema.products)
-    .orderBy(desc(schema.products.id));
-  return c.json({ success: true, data });
-});
-
-app.post("/api/orders", async (c) => {
-  const { customerName, address, items } = await c.req.json();
-
-  try {
-    const result = await db.transaction(async (tx) => {
-      let total = 0;
-
-      const [newOrder] = await tx
-        .insert(schema.orders)
-        .values({
-          customerName,
-          address,
-          totalAmount: "0",
-          status: "pending",
-        })
-        .returning();
-
-      for (const item of items) {
-        const product = await tx.query.products.findFirst({
-          where: eq(schema.products.id, item.productId),
-        });
-
-        if (!product || product.stock < item.quantity) {
-          throw new Error(`Stock ${product?.name} kurang!`);
-        }
-
-        total += parseFloat(product.price) * item.quantity;
-
-        await tx.insert(schema.orderItems).values({
-          orderId: newOrder.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          priceAtTime: product.price,
-        });
-
-        await tx
-          .update(schema.products)
-          .set({ stock: product.stock - item.quantity })
-          .where(eq(schema.products.id, item.productId));
-      }
-
-      await tx
-        .update(schema.orders)
-        .set({ totalAmount: total })
-        .where(eq(schema.orders.id, newOrder.id));
-
-      return { orderId: newOrder.id, total };
-    });
-    return c.json({ success: true, ...result });
-  } catch (e) {
-    return c.json({
-      success: false,
-      message: "Error placing order",
-      error: e.message,
-    });
-  }
-});
+app.post("/api/orders", order);
 
 app.use("/*", serveStatic({ root: "src/public" }));
 

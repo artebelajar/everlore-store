@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { eq } from "drizzle-orm";
+import { db } from "../db/index.js";
+import * as schema from "../db/schema.js";
 
 export const login = async (c) => {
   const { username, password } = await c.req.json();

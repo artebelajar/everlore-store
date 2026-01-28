@@ -1,4 +1,6 @@
 import { eq } from "drizzle-orm";
+import { db } from "../db/index.js";
+import * as schema from "../db/schema.js";
 
 export const order =  async (c) => {
   const { customerName, address, items } = await c.req.json();

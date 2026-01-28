@@ -1,4 +1,6 @@
 import bcrypt from "bcryptjs";
+import { db } from "../db/index.js";
+import * as schema from "../db/schema.js";
 
 export const register = async (c) => {
 try {

@@ -1,4 +1,6 @@
 import { desc } from "drizzle-orm";
+import { db } from "../db/index.js";
+import * as schema from "../db/schema.js";
 
 export const getProduct = async (c) => {
   const data = await db

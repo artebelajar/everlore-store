@@ -1,7 +1,6 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { eq } from "drizzle-orm";
-import { createClient } from "@supabase/supabase-js";
+import * as schema from "../db/schema.js";
+import { supabase } from "../db/storage.js";
+import { db } from "../db/index.js";
 
 export const addProduct = async (c) => {
   try {
