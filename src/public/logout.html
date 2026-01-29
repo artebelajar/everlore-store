@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+</head>
+<body>
+    <div class="ambient-light"></div>
+
+    <div class="logout-container">
+        <div class="brand-name">CuanKu.</div>
+        
+        <div class="loader-wrapper">
+            <div class="orbital-ring"></div>
+            <div class="icon-center">
+                <i data-lucide="log-out" size="40"></i>
+            </div>
+        </div>
+
+        <h1>Keamanan Terjamin</h1>
+        <p>Sesi Anda sedang ditutup secara aman</p>
+        
+        <div style="font-size: 0.85rem; color: var(--primary); font-weight: 600;" class="status-text">
+            Menghapus sesi aktif
+        </div>
+    </div>
+
+    <script>
+        (async () => {
+            const startTime = Date.now();
+            
+            try {
+                // Menjalankan API Logout
+                await fetch("/api/logout", { method: "POST" });
+            } catch (error) {
+                console.error("Logout API failed", error);
+            } finally {
+                    setTimeout(() => {
+                        window.location.href = "/login/";
+                    }, 400);
+            }
+        })();
+    </script>
+</body>
+</html>

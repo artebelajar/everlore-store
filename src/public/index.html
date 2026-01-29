@@ -7,7 +7,7 @@
   </head>
   <body>
     <h1>Toko Warga</h1>
-    <h3>Selamat Datang, <span id="username"></span><h3>
+    <h2>Selamat Datang, <span id="username"></span></h2>
     <a href="./login.html">Logout</a>
     <button onclick="toggleCart()">
       Lihat Keranjang (<span id="count">0</span>)
@@ -24,7 +24,7 @@
         margin-bottom: 20px;
       "
     >
-      <h2>keranjang Anda</h2>
+      <h3>keranjang Anda</h3>
       <div id="cartList"></div>
       <br />
 
@@ -41,17 +41,17 @@
     <div id="products"></div>
 
     <script>
-      console.log('menjalankan script')
+      console.log("menjalankan script");
       let cart = [];
       let allProducts = [];
 
       async function load() {
-        console.log('menjalankna load')
+        console.log("menjalankna load");
         const res = await fetch("/api/products");
-        console.log('res:', res)
+        // const token = localStorage.getItem("token");
+        console.log("res:", res);
         const json = await res.json();
         allProducts = json.data;
-        console.log(allProducts)
 
         document.getElementById("products").innerHTML = allProducts
           .map(
@@ -66,16 +66,16 @@
         `,
           )
           .join("");
-          console.log('ngambil data berhasil');
+        console.log("ngambil data berhasil");
       }
 
       function add(id) {
-        console.log('menjalankan add')
+        console.log("menjalankan add");
         const exist = cart.find((c) => c.productId === id);
         if (exist) exist.quantity++;
         else cart.push({ productId: id, quantity: 1 });
         updateCount();
-        console.log('berhasil menambah data');
+        console.log("berhasil menambah data");
       }
 
       function updateCount() {
@@ -89,7 +89,7 @@
         const m = document.getElementById("cartModal");
         if (m.style.display === "none") {
           console.log("display awal:", m.style.display);
-          m.style.display = 'block';
+          m.style.display = "block";
           console.log("display akhir:", m.style.display);
           renderCartList();
         } else {
@@ -131,15 +131,18 @@
         }
       }
 
-      // load();
-
       async function checkAuth() {
         try {
-          const res = await fetch("/api/me");
+          const res = await fetch("/api/me", {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          });
+          console.log(res);
           const json = await res.json();
           if (json.success) {
             document.getElementById("username").textContent =
-              json.data.username;
+              json.user.username;
             return true;
           }
           // window.location.href = "./login.js";
