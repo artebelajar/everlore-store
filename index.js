@@ -55,13 +55,28 @@ const authMiddleware = async (c, next) => {
   }
 };
 
-app.get("/api/me", authMiddleware, (c) => {
-  const user = c.get("user"); 
+app.get("/api/me", authMiddleware, async (c) => {
+  const payload = c.get("user");
+
+  const user = await db.query.usersECommerce.findFirst({
+    where: eq(schema.usersECommerce.id, payload.id),
+    columns: {
+      id: true,
+      username: true,
+      role: true,
+    },
+  });
+
+  if (!user) {
+    return c.json({ success: false, message: "User not found" }, 404);
+  }
+
   return c.json({
     success: true,
-    user,
+    data: user,
   });
 });
+
 
 
 app.post("/api/products", authMiddleware, addProduct);

@@ -124,6 +124,7 @@
           }),
         });
         const data = await res.json();
+        console.log(data);
 
         if (data.success) {
           const msg = `halo Admin, Order ID #${data.orderId}. Total: ${data.total.toLocaleString()}. Dikirim ke: ${addr}`;
@@ -142,13 +143,12 @@
           const json = await res.json();
           if (json.success) {
             document.getElementById("username").textContent =
-              json.user.username;
+              json.data.username;
             return true;
           }
-          // window.location.href = "./login.js";
           load();
         } catch (e) {
-          window.location.href = "./login.js";
+          window.location.href = "./login.html";
         }
         return false;
       }
