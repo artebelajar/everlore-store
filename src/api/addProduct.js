@@ -32,6 +32,7 @@ export const addProduct = async (c) => {
       stock: parseInt(body["stock"]),
       categoryId: parseInt(body["categoryId"]),
       imageUrl,
+      create: parseInt(body["userId"]), 
     });
 
     return c.json({ success: true, message: "Product created", imageUrl });

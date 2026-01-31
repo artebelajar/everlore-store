@@ -21,7 +21,8 @@ import { login } from "./src/api/login.js";
 import { addProduct } from "./src/api/addProduct.js";
 import { getProduct } from "./src/api/getProduct.js";
 import { order } from "./src/api/orders.js";
-
+import { auth } from "./src/api/auth.js";
+import { myProduct } from "./src/api/myProducts,.js";
 
 process.loadEnvFile();
 
@@ -40,6 +41,11 @@ app.post("/api/register", register);
 
 app.post("/api/login", login);
 
+// app.post("/api/logout", (c) => {
+//   setCookie(c, "token", "", { maxAge: -1 });
+//   return c.json({ success: true, message: "logout berhasil" });
+// });
+
 const authMiddleware = async (c, next) => {
   const authHeader = c.req.header("Authorization");
   if (!authHeader)
@@ -55,35 +61,35 @@ const authMiddleware = async (c, next) => {
   }
 };
 
-app.get("/api/me", authMiddleware, async (c) => {
-  const payload = c.get("user");
-
-  const user = await db.query.usersECommerce.findFirst({
-    where: eq(schema.usersECommerce.id, payload.id),
-    columns: {
-      id: true,
-      username: true,
-      role: true,
-    },
-  });
-
-  if (!user) {
-    return c.json({ success: false, message: "User not found" }, 404);
-  }
-
-  return c.json({
-    success: true,
-    data: user,
-  });
-});
-
-
+app.get("/api/me", authMiddleware, auth);
 
 app.post("/api/products", authMiddleware, addProduct);
 
 app.get("/api/products", getProduct);
 
 app.post("/api/orders", order);
+
+app.get("/api/product/:id", myProduct);
+
+app.delete("/api/products/:id", authMiddleware, async (c) => {
+  const id = c.req.param("id");
+  const user = c.get("user");
+
+  try {
+    const { data, error } = await db
+      .delete(schema.products)
+      .where(eq(schema.products.id, Number(id)));
+
+    if (error) return c.json({ success: false, message: error.message }, 500);
+
+    return c.json(
+      { success: true, message: "Product deleted successfully" },
+      200,
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 app.use("/*", serveStatic({ root: "src/public" }));
 

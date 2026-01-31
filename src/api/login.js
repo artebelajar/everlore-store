@@ -20,5 +20,5 @@ export const login = async (c) => {
     process.env.JWT_SECRET,
     { expiresIn: "1d" },
   );
-  return c.json({ success: true, message: user.role, token });
+  return c.json({ success: true, message: user.role , token });
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "products" ALTER COLUMN "create" SET DEFAULT 1;

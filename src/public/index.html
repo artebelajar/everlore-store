@@ -8,7 +8,8 @@
   <body>
     <h1>Toko Warga</h1>
     <h2>Selamat Datang, <span id="username"></span></h2>
-    <a href="./login.html">Logout</a>
+    <button onclick="logout()">Logout</button>
+    <a href="./admin.html" id="admin" style="display: none;">Product Anda</a>
     <button onclick="toggleCart()">
       Lihat Keranjang (<span id="count">0</span>)
     </button>
@@ -41,15 +42,16 @@
     <div id="products"></div>
 
     <script>
-      console.log("menjalankan script");
       let cart = [];
       let allProducts = [];
 
+      function logout() {
+        localStorage.removeItem("token");
+        window.location.href = "/login.html";
+      }
+
       async function load() {
-        console.log("menjalankna load");
         const res = await fetch("/api/products");
-        // const token = localStorage.getItem("token");
-        console.log("res:", res);
         const json = await res.json();
         allProducts = json.data;
 
@@ -66,16 +68,13 @@
         `,
           )
           .join("");
-        console.log("ngambil data berhasil");
       }
 
       function add(id) {
-        console.log("menjalankan add");
         const exist = cart.find((c) => c.productId === id);
         if (exist) exist.quantity++;
         else cart.push({ productId: id, quantity: 1 });
         updateCount();
-        console.log("berhasil menambah data");
       }
 
       function updateCount() {
@@ -139,12 +138,17 @@
               Authorization: "Bearer " + localStorage.getItem("token"),
             },
           });
-          console.log(res);
           const json = await res.json();
           if (json.success) {
+            if (json.data.role === "admin") {
+              document.getElementById("admin").style.display = "block";
+            }
+
             document.getElementById("username").textContent =
               json.data.username;
             return true;
+          } else {
+            window.location.href = "./login.html";
           }
           load();
         } catch (e) {

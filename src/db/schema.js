@@ -28,6 +28,8 @@ export const products = pgTable("products", {
   stock: integer("stock").notNull(),
   imageUrl: text("image_url"),
   categoryId: integer("category_id").references(() => categories.id),
+  //ini yang baru (siang:29-01-2026)
+  create: integer("create").references(() => usersECommerce.id).default(1),
 });
 
 export const orders = pgTable("orders", {

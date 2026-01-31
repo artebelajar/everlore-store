@@ -7,6 +7,9 @@
   </head>
   <body>
     <h1>Halaman Admin</h1>
+    <button onclick="logout()">Logout</button>
+    <hr />
+
     <p>Tambah Produk Baru</p>
     <hr />
 
@@ -51,16 +54,72 @@
     <br />
     <a href="/index.html">Ke Halaman Belanja</a>
 
+    <h5>Product Anda</h5>
+    <div id="product"></div>
+
     <script>
       const token = localStorage.getItem("token");
 
       if (!token) window.location.href = "/login.html";
 
+      
+      async function checkAuth() {
+        try {
+          const res = await fetch("/api/me", {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          });
+          if (res.success === false) {
+            window.location.href = "./login.html";
+          }
+          const json = await res.json();
+          return json.data.id;
+        } catch (e) {
+          window.location.href = "./login.html";
+        }
+        return false;
+      }
+      
+      async function loadProduct() {
+        const userId = await checkAuth();
+        if (!userId) return;
+        
+        const res = await fetch(`/api/product/${userId}`);
+        const json = await res.json();
+        
+        const product = json.data;
+        console.log(product);
+        
+        document.getElementById("product").innerHTML = product
+          .map(
+            (product) => `
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom:10px">
+              <img src="${product.imageUrl || ""}" width="150">
+              <h3>${product.name}</h3>
+              <p>${product.description ?? ""}</p>
+              <p>Harga: Rp ${parseInt(product.price).toLocaleString()}</p>
+              <p>Stok: ${product.stock ?? ""}</p>
+              <button onclick="deleteProduct(${product.id})">Hapus</button>
+              <button onclick="editProduct(${product.id})">Edit</button>
+            </div>
+            `,
+          )
+          .join("");
+      };
+
+      function logout() {
+        localStorage.removeItem("token");
+        window.location.href = "/login.html";
+      }
+
+      loadProduct();
+
       document
         .getElementById("productForm")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
-          console.log('bisa nih');
+          console.log("bisa nih");
 
           const formData = new FormData();
           formData.append("name", document.getElementById("name").value);
@@ -72,12 +131,13 @@
             document.getElementById("category").value,
           );
           formData.append("image", document.getElementById("image").files[0]);
-          console.log('data udah kesimpen nih')
+          formData.append("userId", await checkAuth());
+          console.log("data udah kesimpen nih");
 
           const res = await fetch("/api/products", {
             method: "POST",
-            headers: { 'Authorization': `Bearer ` + token },
-            body: formData
+            headers: { Authorization: `Bearer ` + token },
+            body: formData,
           });
 
           const data = await res.json();
@@ -85,6 +145,10 @@
 
           if (data.success) location.reload();
         });
+
+      (async () => {
+        if (await checkAuth());
+      })();
     </script>
   </body>
 </html>
