@@ -144,7 +144,7 @@
               <img src="${product.imageUrl || ""}" width="150">
               <h3>${product.name}</h3>
               <p>${product.description ?? ""}</p>
-              <p>Harga: Rp ${parseInt(product.price).toLocaleString()}</p>
+              <p>Harga: Rp ${parseInt(product.price).toLocaleString("id-ID")}</p>
               <p>Stok: ${product.stock ?? ""}</p>
               <button onclick="deleteProduct(${product.id})">Hapus</button>
               <button onclick="editProduct(${product.id}, ${userId})">Edit</button>
