@@ -54,6 +54,7 @@
         const res = await fetch("/api/products");
         const json = await res.json();
         allProducts = json.data;
+        console.log(allProducts);
 
         document.getElementById("products").innerHTML = allProducts
           .map(

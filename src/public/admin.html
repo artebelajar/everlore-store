@@ -6,6 +6,53 @@
     <title>Admin Dashboard</title>
   </head>
   <body>
+    <div id="modal" class="modal" style="display: none">
+      <h1>Edit Produck <span id="name-product"></span></h1>
+      <hr />
+      <form id="productFormEdit">
+        <label>Nama Produk:</label>
+        <input type="text" id="nameEdit" required /><br /><br />
+
+        <label>Deskripsi:</label>
+        <textarea id="descEdit" required></textarea><br /><br />
+
+        <label>Harga (Rp):</label>
+        <input
+          type="number"
+          id="priceEdit"
+          name="price"
+          placeholder="Masukan Harga Produk"
+          required
+        /><br /><br />
+
+        <label>Stok:</label>
+        <input
+          type="number"
+          id="stockEdit"
+          name="stock"
+          placeholder="Masukan Stok Produk"
+          required
+        /><br /><br />
+
+        <label>Kategori:</label>
+        <select id="categoryEdit">
+          <option value="1">Makanan</option>
+          <option value="2">Minuman</option>
+          <option value="3">Pakaian</option>
+        </select>
+        <br /><br />
+
+        <label>Gambar Saat Ini:</label><br />
+        <img id="imagePreview" width="150" style="margin-bottom: 10px" />
+        <br />
+
+        <label>Ganti Gambar (opsional):</label><br />
+        <input type="file" id="imageEdit" name="image-now" accept="image/*" />
+        <br /><br />
+
+        <button type="submit">Ubah Produk</button>
+      </form>
+    </div>
     <h1>Halaman Admin</h1>
     <button onclick="logout()">Logout</button>
     <hr />
@@ -62,7 +109,6 @@
 
       if (!token) window.location.href = "/login.html";
 
-      
       async function checkAuth() {
         try {
           const res = await fetch("/api/me", {
@@ -80,17 +126,17 @@
         }
         return false;
       }
-      
+
       async function loadProduct() {
         const userId = await checkAuth();
         if (!userId) return;
-        
+
         const res = await fetch(`/api/product/${userId}`);
         const json = await res.json();
-        
+
         const product = json.data;
         console.log(product);
-        
+
         document.getElementById("product").innerHTML = product
           .map(
             (product) => `
@@ -101,19 +147,115 @@
               <p>Harga: Rp ${parseInt(product.price).toLocaleString()}</p>
               <p>Stok: ${product.stock ?? ""}</p>
               <button onclick="deleteProduct(${product.id})">Hapus</button>
-              <button onclick="editProduct(${product.id})">Edit</button>
+              <button onclick="editProduct(${product.id}, ${userId})">Edit</button>
             </div>
             `,
           )
           .join("");
-      };
+      }
 
       function logout() {
         localStorage.removeItem("token");
         window.location.href = "/login.html";
       }
 
-      loadProduct();
+      async function deleteProduct(id) {
+        const res = await fetch(`/api/product/${id}`, {
+          method: "DELETE",
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert("Product berhasil dihapus");
+          loadProduct();
+        } else {
+          alert("Product gagal dihapus");
+        }
+      }
+
+      async function editProduct(id, userId) {
+        document.getElementById("modal").style.display = "block";
+
+        const res = await fetch(`/api/product/${userId}`);
+        const json = await res.json();
+
+        const product = json.data.find((p) => p.id === id);
+
+        if (!product) {
+          alert("Produk tidak ditemukan");
+          return;
+        }
+
+        console.log(product);
+
+        document.getElementById("nameEdit").value = product.name;
+        document.getElementById("descEdit").value = product.description ?? "";
+        document.getElementById("priceEdit").value = product.price;
+        document.getElementById("stockEdit").value = product.stock;
+        document.getElementById("name-product").innerText = product.name;
+        document.getElementById("imagePreview").src = product.imageUrl;
+
+        document
+          .getElementById("productFormEdit")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append("name", document.getElementById("nameEdit").value);
+            formData.append(
+              "description",
+              document.getElementById("descEdit").value,
+            );
+            formData.append(
+              "price",
+              document.getElementById("priceEdit").value,
+            );
+            formData.append(
+              "stock",
+              document.getElementById("stockEdit").value,
+            );
+            formData.append(
+              "categoryId",
+              document.getElementById("categoryEdit").value,
+            );
+            formData.append(
+              "image",
+              document.getElementById("imageEdit").files[0],
+            );
+            formData.append("userId", userId);
+
+            const res = await fetch(`/api/product/${id}`, {
+              method: "PUT",
+              headers: {
+                Authorization: `Bearer ` + token,
+              },
+              body: formData,
+            });
+
+            const data = await res.json();
+            alert(data.message);
+
+            if (data.success) {
+              loadProduct();
+              document.getElementById("modal").style.display = "none";
+            }
+          });
+      }
+
+      document
+        .getElementById("imageEdit")
+        .addEventListener("change", function (e) {
+          const file = e.target.files[0];
+          if (file) {
+            document.getElementById("imagePreview").src =
+              URL.createObjectURL(file);
+          }
+        });
+
+      document.getElementById("modal").addEventListener("click", function (e) {
+        if (e.target === this) {
+          this.style.display = "none";
+        }
+      });
 
       document
         .getElementById("productForm")
@@ -147,7 +289,8 @@
         });
 
       (async () => {
-        if (await checkAuth());
+        const userId = await checkAuth();
+        if (userId) loadProduct();
       })();
     </script>
   </body>

@@ -6,9 +6,6 @@ import * as schema from "./src/db/schema.js";
 import { eq, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-// import { drizzle } from "drizzle-orm/postgres-js";
-// import postgres from "postgres";
-// import { createClient } from "@supabase/supabase-js";
 
 //database
 import { db } from "./src/db/index.js";
@@ -23,15 +20,10 @@ import { getProduct } from "./src/api/getProduct.js";
 import { order } from "./src/api/orders.js";
 import { auth } from "./src/api/auth.js";
 import { myProduct } from "./src/api/myProducts,.js";
+import { deleteProduct } from "./src/api/deleteProduct.js";
 
 process.loadEnvFile();
 
-// const client = postgres(process.env.DATABASE_URL);
-// const db = drizzle(client, { schema });
-// const supabase = createClient(
-//   process.env.SUPABASE_URL,
-//   process.env.SUPABASE_SERVICE_KEY,
-// );
 
 const app = new Hono();
 
@@ -71,25 +63,8 @@ app.post("/api/orders", order);
 
 app.get("/api/product/:id", myProduct);
 
-app.delete("/api/products/:id", authMiddleware, async (c) => {
-  const id = c.req.param("id");
-  const user = c.get("user");
+app.delete("/api/product/:id", deleteProduct);
 
-  try {
-    const { data, error } = await db
-      .delete(schema.products)
-      .where(eq(schema.products.id, Number(id)));
-
-    if (error) return c.json({ success: false, message: error.message }, 500);
-
-    return c.json(
-      { success: true, message: "Product deleted successfully" },
-      200,
-    );
-  } catch (error) {
-    console.log(error);
-  }
-});
 
 app.use("/*", serveStatic({ root: "src/public" }));
 
