@@ -9,7 +9,7 @@
     <h1>Toko Warga</h1>
     <h2>Selamat Datang, <span id="username"></span></h2>
     <button onclick="logout()">Logout</button>
-    <a href="./admin.html" id="admin" style="display: none;">Product Anda</a>
+    <a href="./admin.html" id="admin" style="display: none">Product Anda</a>
     <button onclick="toggleCart()">
       Lihat Keranjang (<span id="count">0</span>)
     </button>
@@ -38,7 +38,16 @@
       <button onclick="checkout()">Beli Via Whatsapp</button>
       <button onclick="toggleCart()">Tutup</button>
     </div>
+    <hr />
 
+    <div>
+      <select name="filter" id="categoryFilter">
+        <option value="all">Semua</option>
+        <option value="makanan">Makanan</option>
+        <option value="minuman">Minuman</option>
+        <option value="pakaian">Pakaian</option>
+      </select>
+    </div>
     <div id="products"></div>
 
     <script>
@@ -54,22 +63,37 @@
         const res = await fetch("/api/products");
         const json = await res.json();
         allProducts = json.data;
-        console.log(allProducts);
-
-        document.getElementById("products").innerHTML = allProducts
-          .map(
-            (p) => `
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-                <img src="${p.imageUrl}" width="150" alt="${p.name}" ><br>
-                <h3>${p.name}</h3>
-                <p>${p.description}</p>
-                <p>Harga: Rp ${parseInt(p.price).toLocaleString()}</p>
-                <button onclick="add(${p.id})">Tambah (+)</button>
-            </div>
-        `,
-          )
-          .join("");
+        renderProducts(allProducts);
       }
+
+      // async function filter() {
+      //   const filter = document.getElementById("filter").value;
+
+      //   if (filter === "all") {
+      //     load();
+      //   } else if (filter === "makanan") {
+      //     filter = 1;
+      //   } else if (filter === "minuman") {
+      //     filter = 2;
+      //   } else if (filter === "pakaian") {
+      //     filter = 3;
+      //   }
+
+      //   document.getElementById("products").innerHTML = allProducts
+      //     .filter((p) => p.categoryId === filter)
+      //     .map(
+      //       (p) => `
+      //       <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+      //           <img src="${p.imageUrl}" width="150" alt="${p.name}" ><br>
+      //           <h3>${p.name}</h3>
+      //           <p>${p.description}</p>
+      //           <p>Harga: Rp ${parseInt(p.price).toLocaleString()}</p>
+      //           <button onclick="add(${p.id})">Tambah (+)</button>
+      //       </div>
+      //       `,
+      //     )
+      //     .join("");
+      // }
 
       function add(id) {
         const exist = cart.find((c) => c.productId === id);
@@ -88,14 +112,51 @@
       function toggleCart() {
         const m = document.getElementById("cartModal");
         if (m.style.display === "none") {
-          console.log("display awal:", m.style.display);
           m.style.display = "block";
-          console.log("display akhir:", m.style.display);
           renderCartList();
         } else {
           m.style.display = "none";
         }
       }
+
+      function renderProducts(products) {
+        document.getElementById("products").innerHTML = products
+          .map(
+            (p) => `
+      <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px">
+        <img src="${p.imageUrl}" width="150"><br>
+        <h3>${p.name}</h3>
+        <p>${p.description ?? ""}</p>
+        <p>Harga: Rp ${Number(p.price).toLocaleString("id-ID")}</p>
+        <button onclick="add(${p.id})">Tambah (+)</button>
+      </div>
+    `,
+          )
+          .join("");
+      }
+
+      document
+        .getElementById("categoryFilter")
+        .addEventListener("change", function () {
+          let value = this.value;
+
+          if (value === "all") {
+            renderProducts(allProducts);
+            return;
+          } else if (value === "makanan") {
+            value = 1;
+          } else if (value === "minuman") {
+            value = 2;
+          } else if (value === "pakaian") {
+            value = 3;
+          }
+
+          const filtered = allProducts.filter(
+            (p) => p.categoryId === Number(value),
+          );
+
+          renderProducts(filtered);
+        });
 
       function renderCartList() {
         document.getElementById("cartList").innerHTML = cart
@@ -128,7 +189,7 @@
 
         if (data.success) {
           const msg = `halo Admin, Order ID #${data.orderId}. Total: ${data.total.toLocaleString()}. Dikirim ke: ${addr}`;
-          window.location.href = `https://wa.me/6282130208960?text=${encodeURIComponent(msg)}`;
+          window.location.href = `https://wa.me/6285752214806?text=${encodeURIComponent(msg)}`;
         }
       }
 

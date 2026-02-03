@@ -21,6 +21,7 @@ import { order } from "./src/api/orders.js";
 import { auth } from "./src/api/auth.js";
 import { myProduct } from "./src/api/myProducts,.js";
 import { deleteProduct } from "./src/api/deleteProduct.js";
+import { editProduct } from "./src/api/editProduct.js";
 
 process.loadEnvFile();
 
@@ -65,59 +66,29 @@ app.get("/api/product/:id", myProduct);
 
 app.delete("/api/product/:id", deleteProduct);
 
-app.put("/api/product/:id", async (c) => {
+app.put("/api/product/:id", editProduct);
+
+app.get("/api/categories/:id", async (c) => {
   const id = Number(c.req.param("id"));
-
-  try {
-    const body = await c.req.parseBody();
-    const imagefile = body["image"]; 
-
-    let imageUrl;
-
-    if (imagefile && imagefile instanceof File && imagefile.size > 0) {
-      const fileName = `prod_${Date.now()}_${imagefile.name.replace(/\s/g, "_")}`;
-      const arrayBuffer = new Uint8Array(await imagefile.arrayBuffer());
-
-      const { error: uploadError } = await supabase.storage
-        .from("products")
-        .upload(fileName, arrayBuffer, {
-          contentType: imagefile.type,
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from("products")
-        .getPublicUrl(fileName);
-
-      imageUrl = data.publicUrl;
-    }
-
-    const data = await db
-      .update(schema.products)
-      .set({
-        name: body["name"],
-        description: body["description"],
-        price: Number(body["price"]),
-        stock: parseInt(body["stock"]),
-        categoryId: parseInt(body["categoryId"]),
-        ...(imageUrl && { imageUrl }),
-        create: parseInt(body["userId"]),
-      })
-      .where(eq(schema.products.id, id));
-
-    return c.json({
-      success: true,
-      message: "Berhasil mengubah data",
-      imageUrl,
-    });
-  } catch (error) {
-    console.error("UPDATE ERROR:", error);
-    return c.json(
-      { success: false, message: "Gagal update product" },
-      500,
-    );
-  }
+try {
+  const data = await db.query.products.findMany({
+    where: eq(schema.products.categoryId, id),
+    columns: {
+      id: true,
+      name: true,
+      description: true,
+      price: true,
+      stock: true,
+      imageUrl: true,
+      create: true,
+    },
+    orderBy: desc(schema.products.id),
+  });
+  return c.json({ success: true, message: "Berhasil mengambil data", data });
+} catch (error) {
+  console.error(error);
+  return c.json({ success: false, message: "Error fetching product" }, 500);
+}
 });
 
 app.use("/*", serveStatic({ root: "src/public" }));
