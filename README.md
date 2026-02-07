@@ -26,3 +26,14 @@ Project ini cocok untuk:
 ---
 
 ## 📸 Screenshot Website
+
+
+---
+---
+
+## 🚀 Cara Menjalankan Project
+
+### 1. Clone repository
+```bash
+git clone https://github.com/artebelajar/everlore-store.git
+```
