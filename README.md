@@ -21,3 +21,18 @@ Selamat datang di **Everlore Store** — sebuah web toko baju online yang dibuat
 ### 1. Clone repo
 ```bash
 git clone https://github.com/artebelajar/everlore-store.git
+
+
+---
+
+
+---
+
+### Tips buat kamu (opsional)
+- Tambahkan **screenshot UI toko** di README biar pengunjung langsung paham tampilan toko kamu 🖼️  
+- Bisa juga lengkapi dengan **demo preview** jika sudah di-host di Netlify / Vercel.
+
+---
+
+Kalau kamu ingin aku bantu tambah **badge (build status, license, npm version)** atau bikin versi **bahasa Indonesia yang lebih singkat / panjang**, tinggal bilang aja! 🚀
+::contentReference[oaicite:1]{index=1}
