@@ -22,6 +22,8 @@ Selamat datang di **Everlore Store** — sebuah web toko baju online yang dibuat
 ```bash
 git clone https://github.com/artebelajar/everlore-store.git
 
+```
+
 
 ---
 
