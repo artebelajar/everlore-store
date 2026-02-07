@@ -1,6 +1,7 @@
-/* JS Tetap Sama dengan fungsionalitas aslinya untuk mencegah error */
 let cart = [];
 let allProducts = [];
+
+lucide.createIcons();
 
 async function load() {
   const res = await fetch("/api/products");
@@ -9,77 +10,139 @@ async function load() {
   renderProducts(allProducts);
 }
 
-//logout function
 document.getElementById("logout").addEventListener("click", function () {
   localStorage.removeItem("token");
   window.location.href = "/logout/";
 });
 
-function add(id) {
-  const exist = cart.find((c) => c.productId === id);
-  if (exist) exist.quantity++;
-  else cart.push({ productId: id, quantity: 1 });
+window.add = function(id) {
+  const item = cart.find((c) => c.productId === id);
+  
+  if (item) {
+    item.quantity++;
+  } else {
+    cart.push({ productId: id, quantity: 1 });
+  }
+  
   updateCount();
-  // Efek feedback sederhana
-  const btn = event.target;
-  const originalText = btn.innerText;
-  btn.innerText = "✅ Berhasil!";
-  setTimeout(() => (btn.innerText = originalText), 1000);
-}
+  
+  const btn = event.currentTarget; 
+  if (btn && btn.classList.contains('btn-add-cart')) {
+    const originalText = btn.innerHTML;
+    btn.innerText = "✅ Berhasil";
+    btn.style.background = "var(--secondary-green)";
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.style.background = ""; 
+    }, 800);
+  }
+};
 
 function updateCount() {
+  const totalItems = cart.reduce((acc, curr) => acc + curr.quantity, 0);
+  const countElement = document.getElementById("count");
+  if (countElement) {
+    countElement.innerText = totalItems;
+  }
+}
+
+function toggleCart() {
+  const sidebar = document.getElementById("cartSidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
+  const isActive = sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+
+  if (isActive) {
+    renderCartList();
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "auto";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const sidebar = document.getElementById("cartSidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
+  sidebar.classList.remove("active");
+  overlay.classList.remove("active");
+
+  document.getElementById("btn-cart")?.addEventListener("click", toggleCart);
+  document
+    .getElementById("close-sidebar")
+    ?.addEventListener("click", toggleCart);
+  document
+    .getElementById("sidebarOverlay")
+    ?.addEventListener("click", toggleCart);
+  document
+    .getElementById("btn-continue")
+    ?.addEventListener("click", toggleCart);
+  document.getElementById("btn-checkout")?.addEventListener("click", checkout);
+});
+
+window.add = (id) => {
+  const item = cart.find((c) => c.productId === id);
+  if (item) item.quantity++;
+  else cart.push({ productId: id, quantity: 1 });
   document.getElementById("count").innerText = cart.reduce(
     (a, b) => a + b.quantity,
     0,
   );
-}
+};
 
-function toggleCart() {
-    const sidebar = document.getElementById("cartSidebar");
-    const overlay = document.getElementById("sidebarOverlay");
+document
+  .getElementById("search-product")
+  .addEventListener("input", function (e) {
+    const keyword = e.target.value.toLowerCase();
+    const filtered = allProducts.filter((p) => {
+      const nameMatch = p.name.toLowerCase().includes(keyword);
+      const descMatch = p.description
+        ? p.description.toLowerCase().includes(keyword)
+        : false;
+      return nameMatch || descMatch;
+    });
 
-    const isActive = sidebar.classList.toggle("active");
-    overlay.classList.toggle("active");
-
-    if (isActive) {
-        renderCartList();
-        document.body.style.overflow = "hidden"; // Kunci scroll
-    } else {
-        document.body.style.overflow = "auto"; // Lepas scroll
-    }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const sidebar = document.getElementById("cartSidebar");
-    const overlay = document.getElementById("sidebarOverlay");
-    
-    sidebar.classList.remove("active");
-    overlay.classList.remove("active");
-
-    document.getElementById("btn-cart")?.addEventListener("click", toggleCart);
-    document.getElementById("close-sidebar")?.addEventListener("click", toggleCart);
-    document.getElementById("sidebarOverlay")?.addEventListener("click", toggleCart);
-    document.getElementById("btn-continue")?.addEventListener("click", toggleCart);
-    document.getElementById("btn-checkout")?.addEventListener("click", checkout);
-});
-
-window.add = add;
+    renderProducts(filtered);
+  });
 
 function renderProducts(products) {
-  document.getElementById("products").innerHTML = products
-    .map(
-      (p) => `
-          <div class="product-card">
-            <img src="${p.imageUrl}" alt="${p.name}">
-            <div class="product-info">
-              <h3>${p.name}</h3>
-              <p>${p.description ?? "Produk unggulan Toko Warga."}</p>
-              <div class="price">Rp ${Number(p.price).toLocaleString("id-ID")}</div>
-              <button class="btn-gold" style="margin-top: 20px;" onclick="add(${p.id})">Tambah (+) </button>
-            </div>
+  const container = document.getElementById("products");
+  container.innerHTML = products
+    .map((p) => {
+      let category = null;
+      const stockClass = p.stock <= 10 ? "low-stock" : "in-stock";
+      const stockText = p.stock > 0 ? `Stok: ${p.stock}` : "Stok Habis";
+
+      if (p.categoryId === 1) {
+        category = "had";
+      } else if (p.categoryId === 2) {
+        category = "t-shirt";
+      } else if (p.categoryId === 3) {
+        category = "pants";
+      }
+
+      return `
+      <div class="product-card">
+        <div class="product-image-wrapper">
+          <img src="${p.imageUrl}" alt="${p.name}">
+          <div class="category-badge">${category || "had"}</div>
+        </div>
+        <div class="product-info">
+          <div class="stock-status ${stockClass}">${stockText}</div>
+          <h3>${p.name}</h3>
+          <p>${p.description || "Koleksi pilihan terbaik Everlore Store."}</p>
+          
+          <div class="product-footer">
+            <div class="price">Rp ${Number(p.price).toLocaleString("id-ID")}</div>
+            <button class="btn-add-cart" onclick="add(${p.id})" ${p.stock <= 0 ? "disabled" : ""}>
+              ${p.stock <= 0 ? "Habis" : "Tambah (+)"}
+            </button>
           </div>
-        `,
-    )
+        </div>
+      </div>
+    `;
+    })
     .join("");
 }
 
@@ -90,9 +153,9 @@ document
     if (value === "all") {
       renderProducts(allProducts);
       return;
-    } else if (value === "makanan") value = 1;
-    else if (value === "minuman") value = 2;
-    else if (value === "pakaian") value = 3;
+    } else if (value === "had") value = 1;
+    else if (value === "t-shirt") value = 2;
+    else if (value === "pants") value = 3;
 
     const filtered = allProducts.filter((p) => p.categoryId === Number(value));
     renderProducts(filtered);
@@ -116,6 +179,21 @@ function renderCartList() {
     })
     .join("");
 }
+
+function startWelcomeSlider() {
+  const slides = document.querySelectorAll(".slide");
+  let currentSlide = 0;
+
+  if (slides.length === 0) return;
+
+  setInterval(() => {
+    slides[currentSlide].classList.remove("active");
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add("active");
+  }, 5000);
+}
+
+document.addEventListener("DOMContentLoaded", startWelcomeSlider);
 
 async function checkout() {
   const name = document.getElementById("cName").value;

@@ -22,6 +22,8 @@ import { auth } from "./src/api/auth.js";
 import { myProduct } from "./src/api/myProducts,.js";
 import { deleteProduct } from "./src/api/deleteProduct.js";
 import { editProduct } from "./src/api/editProduct.js";
+import { getOrders } from "./src/api/getOrders.js";
+import { editOrders } from "./src/api/editOrders.js";
 
 process.loadEnvFile();
 
@@ -33,11 +35,6 @@ app.use("*", cors());
 app.post("/api/register", register);
 
 app.post("/api/login", login);
-
-// app.post("/api/logout", (c) => {
-//   setCookie(c, "token", "", { maxAge: -1 });
-//   return c.json({ success: true, message: "logout berhasil" });
-// });
 
 const authMiddleware = async (c, next) => {
   const authHeader = c.req.header("Authorization");
@@ -68,28 +65,9 @@ app.delete("/api/product/:id", deleteProduct);
 
 app.put("/api/product/:id", editProduct);
 
-app.get("/api/categories/:id", async (c) => {
-  const id = Number(c.req.param("id"));
-try {
-  const data = await db.query.products.findMany({
-    where: eq(schema.products.categoryId, id),
-    columns: {
-      id: true,
-      name: true,
-      description: true,
-      price: true,
-      stock: true,
-      imageUrl: true,
-      create: true,
-    },
-    orderBy: desc(schema.products.id),
-  });
-  return c.json({ success: true, message: "Berhasil mengambil data", data });
-} catch (error) {
-  console.error(error);
-  return c.json({ success: false, message: "Error fetching product" }, 500);
-}
-});
+app.get("/api/orders/",  getOrders);
+
+app.put("/api/orders/:id/status", editOrders);
 
 app.use("/*", serveStatic({ root: "src/public" }));
 

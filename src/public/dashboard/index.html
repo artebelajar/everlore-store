@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Toko Warga - Premium Pop</title>
+    <title>Everlore Store - Premium Pop</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
       rel="stylesheet"
@@ -14,54 +14,100 @@
   <body>
     <header>
       <div class="brand">
-        <img src="./assets/logo.png" alt="logo-toko-warga" class="logo" />
-        <h1>Toko Warga</h1>
+        <img src="./assets/logo.png" alt="logo" class="logo" />
+        <h1>Everlore <b>Store</b></h1>
       </div>
       <div class="nav-actions">
         <a href="/admin/" id="admin" style="display: none">Panel Admin</a>
         <button class="btn-outline" id="btn-cart">
-          🛒 Keranjang (<span id="count">0</span>)
+          <i data-lucide="shopping-basket" size="20"></i>
+          (<span id="count">0</span>)
         </button>
-        <button class="btn-gold" id="logout">Logout</button>
+        <button id="logout" class="btn-logout btn-outline">Logout</button>
       </div>
     </header>
 
     <div class="container">
-      <div class="welcome-section">
-        <h2 style="margin: 0">
-          Halo, <span id="username" style="color: var(--gold)"></span> 👋
-        </h2>
-        <p style="margin: 10px 0 0 0; color: #636e72">
-          Selamat berbelanja produk eksklusif kami hari ini.
-        </p>
+      <div class="welcome-slider">
+        <div class="slide active">
+          <img
+            src="https://images.unsplash.com/photo-1718985342099-7325610c3af1?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Promo 1"
+          />
+          <div class="slide-content">
+            <h2>Welcome, <span id="username"></span></h2>
+            <p>
+              Temukan koleksi eksklusif dengan kualitas premium hanya di
+              Everlore.
+            </p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <img
+            src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070"
+            alt="Promo 2"
+          />
+          <div class="slide-content">
+            <h2>Style Keren Ala Gen Z</h2>
+            <p>
+              Dapatkan koleksi terbaru dengan desain unik dan kualitas
+              premium, Setiap produk kami dirancang dengan kualitas terbaik dan
+              detail yang teliti.
+            </p>
+          </div>
+        </div>
+
+        <div class="slide">
+          <img
+            src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Promo 2"
+          />
+          <div class="slide-content">
+            <h2>Kenapa Harus Everlore?</h2>
+            <p>karena kami percaya bahwa customer adalah nomor satu.</p>
+            <p>Sehingga setiap barang, kami rancang untuk memberikan kualitas yang terbaik.</p>
+          </div>
+        </div>
       </div>
 
       <div class="filter-container">
-        <span>Cari Produk:</span>
-        <select name="filter" id="categoryFilter">
-          <option value="all">Semua Kategori</option>
-          <option value="makanan">🍛 Makanan</option>
-          <option value="minuman">🍹 Minuman</option>
-          <option value="pakaian">👕 Pakaian</option>
-        </select>
+        <h1>Semua Produk Kami:</h1>
+        <div class="filter-group">
+          <label>Filter Kategori</label>
+          <select id="categoryFilter">
+            <option value="all">Semua Kategori</option>
+            <option value="had">Had</option>
+            <option value="t-shirt">T-Shirt</option>
+            <option value="pants">Pants</option>
+          </select>
+        </div>
+
+        <div class="search-group">
+          <label>Cari Produk</label>
+          <div class="search-wrapper">
+            <input
+              type="search"
+              id="search-product"
+              placeholder="Cari barang mewah..."
+            />
+          </div>
+        </div>
       </div>
 
       <div id="products"></div>
     </div>
 
-    <div id="cartSidebar" class="cart-sidebar active">
+    <div id="cartSidebar" class="cart-sidebar">
       <div class="sidebar-header">
         <h3>🛒 Keranjang Anda</h3>
         <button class="close-sidebar" id="close-sidebar">×</button>
       </div>
-
       <div class="sidebar-body">
         <div id="cartList"></div>
-
         <div class="checkout-form">
           <label>Nama Pemesan</label>
           <input type="text" id="cName" placeholder="Contoh: Budi Santoso" />
-
           <label>Alamat Pengiriman</label>
           <input
             type="text"
@@ -70,7 +116,6 @@
           />
         </div>
       </div>
-
       <div class="sidebar-footer">
         <button class="btn-gold w-100" id="btn-checkout">
           Beli Sekarang (WA)
@@ -85,8 +130,9 @@
       </div>
     </div>
 
-    <div id="sidebarOverlay" class="sidebar-overlay active"></div>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="script.js"></script>
   </body>
 </html>
