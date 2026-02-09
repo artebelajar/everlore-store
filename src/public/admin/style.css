@@ -474,3 +474,80 @@ button:active {
   align-items: center;
   margin-bottom: 20px;
 }
+
+/* --- Styling Order Summary (Details) --- */
+details {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  background: var(--light-purple);
+  border-radius: 10px;
+  border: 1px solid rgba(61, 29, 90, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+summary {
+  padding: 10px 15px;
+  font-weight: 700;
+  color: var(--primary-purple);
+  cursor: pointer;
+  outline: none;
+  list-style: none; /* Hilangkan panah default di beberapa browser */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Custom panah menggunakan pseudo-element */
+summary::after {
+  content: "▾";
+  transition: transform 0.3s ease;
+  color: var(--accent-gold);
+}
+
+details[open] summary::after {
+  transform: rotate(180deg);
+}
+
+summary:hover {
+  background: rgba(61, 29, 90, 0.05);
+}
+
+/* --- Container Barang di Dalam --- */
+.order-items {
+  padding: 10px 15px;
+  border-top: 1px dashed rgba(61, 29, 90, 0.2);
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item strong {
+  font-size: 0.9rem;
+  color: var(--primary-purple);
+  flex: 2;
+}
+
+.order-item p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+  flex: 1;
+  text-align: right;
+}
+
+/* Highlight Harga & Qty */
+.order-item p:last-of-type {
+  font-weight: 700;
+  color: var(--secondary-green);
+  min-width: 100px;
+}

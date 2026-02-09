@@ -71,21 +71,25 @@ async function loadOrders() {
   try {
     const res = await fetch(`/api/orders/`);
     const json = await res.json();
-    const orders = json.data.filter((o) => o.status !== "Completed" && o.status !== "Canceled") || [];
+    const orders =
+      json.data.filter(
+        (o) => o.status !== "Completed" && o.status !== "Canceled",
+      ) || [];
 
     if (orders.length === 0) {
       container.innerHTML = `<div class="empty-state">Belum ada pesanan masuk.</div>`;
       return;
     }
-    
-    container.innerHTML = orders.map(o => {
-      const statusClass = o.status.toLowerCase();
-      return `
+
+    container.innerHTML = orders
+      .map((o) => {
+        const statusClass = o.status.toLowerCase();
+        return `
         <div class="order-card">
           <div class="order-header">
             <div>
               <span class="order-id">#ORD-${o.id}</span>
-              <span class="order-date">${new Date(o.createdAt).toLocaleDateString('id-ID')}</span>
+              <span class="order-date">${new Date(o.createdAt).toLocaleDateString("id-ID")}</span>
             </div>
             <span class="status-badge ${statusClass}">${o.status}</span>
           </div>
@@ -96,26 +100,62 @@ async function loadOrders() {
               <p>${o.address}</p>
             </div>
             <div class="order-total">
-              <span>Total Tagihan</span>
-              <strong>Rp ${parseInt(o.totalAmount).toLocaleString()}</strong>
+            <span>Total Tagihan</span>
+            <strong>Rp ${parseInt(o.totalAmount).toLocaleString()}</strong>
             </div>
-          </div>
+            </div>
 
-          <div class="order-actions">
+            <details>
+              <summary>Barang yang dibeli</summary>
+                <div class="order-items" id="order-items-${o.id}">
+                  Memuat...
+                </div>
+            </details>
+            <div class="order-actions">
             <select class="status-select" data-id="${o.id}">
-              <option value="" disabled selected>Ganti Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Processing">Diproses</option>
-              <option value="Completed">Selesai</option>
-              <option value="Canceled">Batalkan</option>
+            <option value="" disabled selected>Ganti Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Processing">Diproses</option>
+            <option value="Completed">Selesai</option>
+            <option value="Canceled">Batalkan</option>
             </select>
             <button class="btn-update-status" data-id="${o.id}">Update</button>
-          </div>
-        </div>
+            </div>
+            </div>
       `;
-    }).join("");
+      })
+      .join("");
+
+    orders.forEach((o) => {
+      loadOrderItems(o.id);
+    });
   } catch (err) {
     container.innerHTML = "<p>Gagal memuat pesanan.</p>";
+  }
+}
+
+async function loadOrderItems(orderId) {
+  const container = document.getElementById(`order-items-${orderId}`);
+  if (!container) return;
+
+  try {
+    const res = await fetch(`/api/orders/${orderId}/items`);
+    const json = await res.json();
+    const items = json.data;
+
+    container.innerHTML = items
+      .map(
+        (item) => `
+      <div class="order-item">
+        <strong>${item.product.name}</strong>
+        <p>x${item.quantity}</p>
+        <p>Rp ${parseInt(item.priceAtTime).toLocaleString()}</p>
+      </div>
+    `,
+      )
+      .join("");
+  } catch (err) {
+    container.innerText = "Gagal memuat produk";
   }
 }
 
@@ -130,15 +170,15 @@ document.getElementById("orders").addEventListener("click", async (e) => {
     try {
       const res = await fetch(`/api/orders/${orderId}/status`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       });
       const data = await res.json();
       if (data.success) {
         alert("Status diperbarui!");
-        loadOrders(); 
+        loadOrders();
       }
     } catch (err) {
       alert("Gagal update status");

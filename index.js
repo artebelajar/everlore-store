@@ -69,6 +69,37 @@ app.get("/api/orders/",  getOrders);
 
 app.put("/api/orders/:id/status", editOrders);
 
+app.get("/api/orders/items/:id", async (c) => {
+  const orderId = c.req.param("id");
+  const items = await db
+    .select()
+    .from(schema.orderItems)
+    .where(eq(schema.orderItems.orderId, orderId));
+  return c.json({ success: true, data: items });
+});
+
+app.get("/api/orders/:id/items", async (c) => {
+  const orderId = Number(c.req.param("id"));
+
+  const items = await db
+    .select({
+      quantity: schema.orderItems.quantity,
+      priceAtTime: schema.orderItems.priceAtTime,
+      product: {
+        name: schema.products.name,
+        imageUrl: schema.products.imageUrl,
+      },
+    })
+    .from(schema.orderItems)
+    .innerJoin(
+      schema.products,
+      eq(schema.products.id, schema.orderItems.productId)
+    )
+    .where(eq(schema.orderItems.orderId, orderId));
+
+  return c.json({ success: true, data: items });
+});
+
 app.use("/*", serveStatic({ root: "src/public" }));
 
 const port = 4554;
