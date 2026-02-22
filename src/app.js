@@ -25,8 +25,10 @@ import { editProduct } from "./api/editProduct.js";
 import { getOrders } from "./api/getOrders.js";
 import { editOrders } from "./api/editOrders.js";
 
-
 const app = new Hono();
+
+app.use("/*", serveStatic({ root: "/public" }));
+app.get("/", (c) => c.text("ROOT HIT"));
 
 app.use("*", cors());
 
@@ -98,11 +100,10 @@ app.get("/api/orders/:id/items", async (c) => {
   return c.json({ success: true, data: items });
 });
 
-app.use("/*", serveStatic({ root: "/public" }));
 
-app.get("/", (c) => {
-  return c.json({ message: "API is running" });
-});
+// app.get("/", (c) => {
+//   return c.json({ message: "API is running" });
+// });
 
 // const port = 4554;
 // console.log(`Server running on http://localhost:${port}`);
