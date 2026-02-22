@@ -3,7 +3,6 @@ import postgres from "postgres";
 import { usersECommerce, categories } from "./schema.js";
 import bcrypt from "bcryptjs";
 
-process.loadEnvFile();
 
 const client = postgres(process.env.DATABASE_URL);
 const db = drizzle(client);
