@@ -28,7 +28,7 @@ import { editOrders } from "./api/editOrders.js";
 const app = new Hono();
 
 app.use("/*", serveStatic({ root: "/public" }));
-app.get("/", (c) => c.text("ROOT HIT"));
+// app.get("/", (c) => c.text("ROOT HIT"));
 
 app.use("*", cors());
 
