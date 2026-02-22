@@ -5,8 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node --watch ./index.js",
-    "start": "node ./index.js",
+    "start": "node ./api/index.js",
     "db:generate": "drizzle-kit generate ",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "node src/db/seed.js"
