@@ -1,7 +1,9 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import {serveStatic} from "hono/serve-static";
 import { cors } from "hono/cors";
 import * as schema from "./src/db/schema.js";
+import 'dotenv/config.js';
 import { eq, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -22,6 +24,8 @@ import { getOrders } from "./src/api/getOrders.js";
 import { editOrders } from "./src/api/editOrders.js";
 
 const app = new Hono();
+
+app.use("/*", serveStatic({ root: "./public" }));
 
 app.get("/", (c) => c.text("ROOT HIT"));
 

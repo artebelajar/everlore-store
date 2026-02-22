@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import 'dotenv/config.js';
 import { usersECommerce, categories } from "./schema.js";
 import bcrypt from "bcryptjs";
 
