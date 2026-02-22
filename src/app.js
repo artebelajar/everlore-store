@@ -2,28 +2,28 @@ import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import * as schema from "./src/db/schema.js";
+import * as schema from "./db/schema.js";
 import { eq, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 //database
-import { db } from "./src/db/index.js";
-import { supabase } from "./src/db/storage.js";
+import { db } from "./db/index.js";
+import { supabase } from "./db/storage.js";
 
 //router
-import { register } from "./src/api/register.js";
-import { login } from "./src/api/login.js";
+import { register } from "./api/register.js";
+import { login } from "./api/login.js";
 // import { auth } from "./src/api/auth.js";
-import { addProduct } from "./src/api/addProduct.js";
-import { getProduct } from "./src/api/getProduct.js";
-import { order } from "./src/api/orders.js";
-import { auth } from "./src/api/auth.js";
-import { myProduct } from "./src/api/myProducts,.js";
-import { deleteProduct } from "./src/api/deleteProduct.js";
-import { editProduct } from "./src/api/editProduct.js";
-import { getOrders } from "./src/api/getOrders.js";
-import { editOrders } from "./src/api/editOrders.js";
+import { addProduct } from "./api/addProduct.js";
+import { getProduct } from "./api/getProduct.js";
+import { order } from "./api/orders.js";
+import { auth } from "./api/auth.js";
+import { myProduct } from "./api/myProducts,.js";
+import { deleteProduct } from "./api/deleteProduct.js";
+import { editProduct } from "./api/editProduct.js";
+import { getOrders } from "./api/getOrders.js";
+import { editOrders } from "./api/editOrders.js";
 
 
 const app = new Hono();
