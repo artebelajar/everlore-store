@@ -6,6 +6,8 @@ import * as schema from "./src/db/schema.js";
 import { eq, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import path from "path";
+
 
 //database
 import { db } from "./src/db/index.js";
@@ -19,7 +21,7 @@ import { addProduct } from "./src/api/addProduct.js";
 import { getProduct } from "./src/api/getProduct.js";
 import { order } from "./src/api/orders.js";
 import { auth } from "./src/api/auth.js";
-import { myProduct } from "./src/api/myProducts,.js";
+import { myProduct } from "./src/api/myProducts.js";
 import { deleteProduct } from "./src/api/deleteProduct.js";
 import { editProduct } from "./src/api/editProduct.js";
 import { getOrders } from "./src/api/getOrders.js";
@@ -27,7 +29,11 @@ import { editOrders } from "./src/api/editOrders.js";
 
 const app = new Hono();
 
-app.use("/*", serveStatic({ root: "/public" }));
+app.use("/static/*", serveStatic({
+  root: path.join(process.cwd(), "public"),
+  rewriteRequestPath: (path) => path.replace(/^\/static/, '')
+}));
+
 app.get("/", (c) => c.text("ROOT HIT"));
 
 app.use("*", cors());
