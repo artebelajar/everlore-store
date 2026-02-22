@@ -6,11 +6,9 @@ import { eq, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-//database
 import { db } from "./src/db/index.js";
 import { supabase } from "./src/db/storage.js";
 
-//router
 import { register } from "./src/api/register.js";
 import { login } from "./src/api/login.js";
 import { addProduct } from "./src/api/addProduct.js";
