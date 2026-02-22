@@ -30,6 +30,10 @@ const app = new Hono();
 
 app.use("*", cors());
 
+app.get("/", (c) => {
+  return c.json({ message: "API is running" });
+});
+
 app.post("/api/register", register);
 
 app.post("/api/login", login);
@@ -98,7 +102,7 @@ app.get("/api/orders/:id/items", async (c) => {
   return c.json({ success: true, data: items });
 });
 
-app.use("/*", serveStatic({ root: "src/public" }));
+app.use("/*", serveStatic({ root: "/public" }));
 
 // const port = 4554;
 // console.log(`Server running on http://localhost:${port}`);
