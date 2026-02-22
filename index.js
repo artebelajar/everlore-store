@@ -1,13 +1,10 @@
 import { serve } from "@hono/node-server";
-import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import * as schema from "./src/db/schema.js";
 import { eq, desc } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import path from "path";
-
 
 //database
 import { db } from "./src/db/index.js";
@@ -16,12 +13,11 @@ import { supabase } from "./src/db/storage.js";
 //router
 import { register } from "./src/api/register.js";
 import { login } from "./src/api/login.js";
-// import { auth } from "./src/api/auth.js";
 import { addProduct } from "./src/api/addProduct.js";
 import { getProduct } from "./src/api/getProduct.js";
 import { order } from "./src/api/orders.js";
 import { auth } from "./src/api/auth.js";
-import { myProduct } from "./src/api/myProducts.js";
+import { myProduct } from "./src/api/myProducts.js"; // PASTIKAN NAMA FILE BENAR
 import { deleteProduct } from "./src/api/deleteProduct.js";
 import { editProduct } from "./src/api/editProduct.js";
 import { getOrders } from "./src/api/getOrders.js";
@@ -29,17 +25,11 @@ import { editOrders } from "./src/api/editOrders.js";
 
 const app = new Hono();
 
-app.use("/static/*", serveStatic({
-  root: path.join(process.cwd(), "public"),
-  rewriteRequestPath: (path) => path.replace(/^\/static/, '')
-}));
-
 app.get("/", (c) => c.text("ROOT HIT"));
 
 app.use("*", cors());
 
 app.post("/api/register", register);
-
 app.post("/api/login", login);
 
 const authMiddleware = async (c, next) => {
@@ -58,21 +48,13 @@ const authMiddleware = async (c, next) => {
 };
 
 app.get("/api/me", authMiddleware, auth);
-
 app.post("/api/products", authMiddleware, addProduct);
-
 app.get("/api/products", getProduct);
-
 app.post("/api/orders", order);
-
 app.get("/api/product/:id", myProduct);
-
 app.delete("/api/product/:id", deleteProduct);
-
 app.put("/api/product/:id", editProduct);
-
-app.get("/api/orders/",  getOrders);
-
+app.get("/api/orders/", getOrders);
 app.put("/api/orders/:id/status", editOrders);
 
 app.get("/api/orders/items/:id", async (c) => {
@@ -106,17 +88,4 @@ app.get("/api/orders/:id/items", async (c) => {
   return c.json({ success: true, data: items });
 });
 
-
-// app.get("/", (c) => {
-//   return c.json({ message: "API is running" });
-// });
-
-// const port = 4554;
-// console.log(`Server running on http://localhost:${port}`);
-// serve({ fetch: app.fetch, port });
-
-// export default app;
-export default {
-  fetch: app.fetch
-};
-
+export default app;
