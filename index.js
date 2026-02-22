@@ -25,8 +25,6 @@ import { editProduct } from "./src/api/editProduct.js";
 import { getOrders } from "./src/api/getOrders.js";
 import { editOrders } from "./src/api/editOrders.js";
 
-process.loadEnvFile();
-
 
 const app = new Hono();
 
@@ -102,8 +100,12 @@ app.get("/api/orders/:id/items", async (c) => {
 
 app.use("/*", serveStatic({ root: "src/public" }));
 
-const port = 4554;
-console.log(`Server running on http://localhost:${port}`);
-serve({ fetch: app.fetch, port });
+// const port = 4554;
+// console.log(`Server running on http://localhost:${port}`);
+// serve({ fetch: app.fetch, port });
 
-export default app;
+// export default app;
+export default {
+  fetch: app.fetch
+};
+
