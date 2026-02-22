@@ -17,7 +17,7 @@ import { addProduct } from "./src/api/addProduct.js";
 import { getProduct } from "./src/api/getProduct.js";
 import { order } from "./src/api/orders.js";
 import { auth } from "./src/api/auth.js";
-import { myProduct } from "./src/api/myProducts.js"; // PASTIKAN NAMA FILE BENAR
+import { myProduct } from "./src/api/myProducts.js"; 
 import { deleteProduct } from "./src/api/deleteProduct.js";
 import { editProduct } from "./src/api/editProduct.js";
 import { getOrders } from "./src/api/getOrders.js";
