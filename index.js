@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import * as schema from "./src/db/schema.js";
@@ -23,28 +24,10 @@ import { editOrders } from "./src/api/editOrders.js";
 
 const app = new Hono();
 
-app.get("/", (c) => c.text("ROOT HIT"));
-
 app.use("*", cors());
 
 app.post("/api/register", register);
 app.post("/api/login", login);
-
-const authMiddleware = async (c, next) => {
-  const authHeader = c.req.header("Authorization");
-  if (!authHeader)
-    return c.json({ success: false, message: "Unauthorized" }, 401);
-
-  try {
-    const token = authHeader.split(" ")[1];
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    c.set("user", payload);
-    await next();
-  } catch (error) {
-    return c.json({ success: false, message: "Invalid token" }, 403);
-  }
-};
-
 app.get("/api/me", authMiddleware, auth);
 app.post("/api/products", authMiddleware, addProduct);
 app.get("/api/products", getProduct);
@@ -55,35 +38,31 @@ app.put("/api/product/:id", editProduct);
 app.get("/api/orders/", getOrders);
 app.put("/api/orders/:id/status", editOrders);
 
-app.get("/api/orders/items/:id", async (c) => {
-  const orderId = c.req.param("id");
-  const items = await db
-    .select()
-    .from(schema.orderItems)
-    .where(eq(schema.orderItems.orderId, orderId));
-  return c.json({ success: true, data: items });
+app.use("/*", serveStatic({
+  root: path.join(__dirname, "public"),
+}));
+
+app.get("*", (c) => {
+  return c.html(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>My App</title>
+        <link rel="stylesheet" href="/css/style.css">
+      </head>
+      <body>
+        <div id="root"></div>
+        <script src="/js/app.js"></script>
+      </body>
+    </html>
+  `);
 });
 
-app.get("/api/orders/:id/items", async (c) => {
-  const orderId = Number(c.req.param("id"));
-
-  const items = await db
-    .select({
-      quantity: schema.orderItems.quantity,
-      priceAtTime: schema.orderItems.priceAtTime,
-      product: {
-        name: schema.products.name,
-        imageUrl: schema.products.imageUrl,
-      },
-    })
-    .from(schema.orderItems)
-    .innerJoin(
-      schema.products,
-      eq(schema.products.id, schema.orderItems.productId)
-    )
-    .where(eq(schema.orderItems.orderId, orderId));
-
-  return c.json({ success: true, data: items });
-});
+if (process.env.NODE_ENV !== 'production') {
+  const port = 4554;
+  console.log(`Server running on http://localhost:${port}`);
+  serve({ fetch: app.fetch, port });
+}
 
 export default app;
