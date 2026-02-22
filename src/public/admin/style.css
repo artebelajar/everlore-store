@@ -226,6 +226,8 @@ button:active {
   grid-template-columns: 1fr 2fr;
   gap: 30px;
   align-items: start; 
+  margin-bottom: 50px;
+
 }
 
 @media (max-width: 900px) {

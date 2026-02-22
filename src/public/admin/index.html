@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard - Toko Warga</title>
+    <title>Admin Dashboard - Everlore</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap"
       rel="stylesheet"
@@ -23,7 +23,7 @@
             font-weight: 600;
             font-size: 0.9rem;
           "
-          >← Lihat Toko</a
+          >← View Store</a
         >
         <button class="btn-logout" id="logout">Logout</button>
       </div>
@@ -32,21 +32,21 @@
     <div class="container">
       <div class="dashboard-grid">
         <div class="card sticky-card">
-          <h2>Tambah Produk Baru</h2>
+          <h2>Add New Product</h2>
           <form id="productForm">
-            <label>Nama Produk</label>
+            <label>Product Name</label>
             <input
               type="text"
               id="name"
-              placeholder="Contoh: Kemeja Emas"
+              placeholder="Example: Gold Shirt"
               required
             />
 
-            <label>Deskripsi</label>
+            <label>Description</label>
             <textarea
               id="desc"
               rows="3"
-              placeholder="Jelaskan produk Anda..."
+              placeholder="Describe your product..."
               required
             ></textarea>
 
@@ -54,23 +54,23 @@
               style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px"
             >
               <div>
-                <label>Harga (Rp)</label>
+                <label>Price (IDR)</label>
                 <input type="number" id="price" placeholder="0" required />
               </div>
               <div>
-                <label>Stok</label>
+                <label>Stock</label>
                 <input type="number" id="stock" placeholder="0" required />
               </div>
             </div>
 
-            <label>Kategori</label>
+            <label>Category</label>
             <select id="category">
-              <option value="1">Had</option>
+              <option value="1">Hat</option>
               <option value="2">T-Shirt</option>
               <option value="3">Pants</option>
             </select>
 
-            <label>Gambar Produk</label>
+            <label>Product Image</label>
             <div class="preview-box">
               <img
                 id="imagePreview"
@@ -81,39 +81,45 @@
                   border-radius: 8px;
                 "
               />
-              <input type="file" class="add-image" id="image" accept="image/*" required />
+              <input
+                type="file"
+                class="add-image"
+                id="image"
+                accept="image/*"
+                required
+              />
             </div>
 
             <button type="submit" class="btn-gold" style="margin-top: 20px">
-              Tambah Produk Sekarang
+              Add Product Now
             </button>
           </form>
         </div>
 
         <div class="card">
           <div class="filter-section">
-            <h2 style="border: none; padding: 0; margin: 0">Produk Anda</h2>
+            <h2 style="border: none; padding: 0; margin: 0">Your Products</h2>
             <select id="categoryFilter" style="width: auto; padding: 5px 15px">
-              <option value="all">Semua Kategori</option>
-              <option value="had">Had</option>
-              <option value="tshirt">T-shirt</option>
+              <option value="all">All Categories</option>
+              <option value="had">Hat</option>
+              <option value="tshirt">T-Shirt</option>
               <option value="pants">Pants</option>
             </select>
           </div>
 
           <div id="products">
-            <p style="text-align: center; color: #999">Memuat produk...</p>
+            <p style="text-align: center; color: #999">Loading products...</p>
           </div>
         </div>
       </div>
-      
+
       <div class="orders-grid">
         <div class="card">
           <h2 style="border: none; padding: 0; margin: 0">
-            Riwayat Pesanan Anda
+            Your Order History
           </h2>
           <div id="orders"></div>
-        </div>  
+        </div>
       </div>
     </div>
 
@@ -123,31 +129,31 @@
           Edit: <span id="name-product" style="color: var(--gold)"></span>
         </h2>
         <form id="productFormEdit">
-          <label>Nama Produk</label>
+          <label>Product Name</label>
           <input type="text" id="nameEdit" required />
 
-          <label>Deskripsi</label>
+          <label>Description</label>
           <textarea id="descEdit" rows="3" required></textarea>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
             <div>
-              <label>Harga (Rp)</label>
+              <label>Price (IDR)</label>
               <input type="number" id="priceEdit" required />
             </div>
             <div>
-              <label>Stok</label>
+              <label>Stock</label>
               <input type="number" id="stockEdit" required />
             </div>
           </div>
 
-          <label>Kategori</label>
+          <label>Category</label>
           <select id="categoryEdit">
-            <option value="1">Had</option>
+            <option value="1">Hat</option>
             <option value="2">T-Shirt</option>
             <option value="3">Pants</option>
           </select>
 
-          <label>Gambar Saat Ini</label>
+          <label>Current Image</label>
           <div class="preview-box">
             <img
               id="imagePreviewEdit"
@@ -156,13 +162,13 @@
             />
             <input type="file" id="imageEdit" accept="image/*" />
             <p style="font-size: 0.7rem; color: #999; margin-top: 5px">
-              *Biarkan kosong jika tidak ingin ganti gambar
+              *Leave empty if you don’t want to change the image
             </p>
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 25px">
             <button type="submit" class="btn-gold" style="flex: 2">
-              Simpan Perubahan
+              Save Changes
             </button>
             <button
               type="button"
@@ -170,7 +176,7 @@
               class="btn-logout"
               style="flex: 1"
             >
-              Batal
+              Cancel
             </button>
           </div>
         </form>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checking Session - Toko Warga</title>
+    <title>Checking Session - Everlore</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -27,7 +27,6 @@
         overflow: hidden;
       }
 
-      /* --- Background Glow --- */
       .glow {
         position: absolute;
         width: 300px;
@@ -36,7 +35,6 @@
         z-index: 0;
       }
 
-      /* --- Card Pop Up --- */
       .status-card {
         position: relative;
         z-index: 1;
@@ -71,7 +69,6 @@
         margin-bottom: 30px;
       }
 
-      /* --- Animated Pop Loader --- */
       .loader {
         display: flex;
         justify-content: center;
@@ -96,7 +93,6 @@
         to { transform: translateY(-15px); opacity: 0.4; background: var(--dark-gold); }
       }
 
-      /* --- Dots Text --- */
       .dots span {
         font-size: 1.5rem;
         font-weight: 800;
@@ -120,7 +116,7 @@
 
     <div class="status-card">
       <h1>Security Check</h1>
-      <p>Memeriksa status login Anda...</p>
+      <p>Verifying your login status...</p>
 
       <div class="loader">
         <span></span>
@@ -129,21 +125,21 @@
       </div>
 
       <div class="dots" style="margin-top: 10px;">
-        <span style="font-size: 0.8rem; color: #bbb; letter-spacing: 2px;">MOHON TUNGGU</span>
+        <span style="font-size: 0.8rem; color: #bbb; letter-spacing: 2px;">
+          PLEASE WAIT
+        </span>
       </div>
     </div>
 
     <script>
       (async () => {
         const startTime = Date.now();
-        const minDelay = 1500; // Minimal tunggu 1.5 detik agar user bisa lihat animasi
+        const minDelay = 1500;
 
         try {
-          // 1. Cek Sesi ke API
           const response = await fetch("/api/me", { method: "GET" });
           const { success } = await response.json();
 
-          // 2. Hitung sisa waktu delay agar tidak terlalu cepat redirect
           const elapsedTime = Date.now() - startTime;
           const remainingTime = Math.max(0, minDelay - elapsedTime);
 
@@ -157,8 +153,6 @@
 
         } catch (error) {
           console.error("error checking auth status:", error);
-          
-          // Jika error, tetap beri delay sedikit sebelum redirect ke login
           setTimeout(() => {
             window.location.href = "/login/";
           }, minDelay);

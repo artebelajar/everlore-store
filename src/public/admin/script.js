@@ -18,12 +18,12 @@ async function checkAuth() {
   }
 }
 
-// Fungsi Render Produk
+// Render Products
 function renderProducts(products) {
   const container = document.getElementById("products");
   if (!products || products.length === 0) {
     container.innerHTML =
-      "<p style='grid-column: 1/-1; text-align: center; color: #999; padding: 20px;'>Belum ada produk.</p>";
+      "<p style='grid-column: 1/-1; text-align: center; color: #999; padding: 20px;'>No products available.</p>";
     return;
   }
 
@@ -33,13 +33,13 @@ function renderProducts(products) {
       <div class="product-item">
         <img src="${p.imageUrl}" alt="${p.name}">
         <h3>${p.name}</h3>
-        <div class="price-admin">Rp ${parseInt(p.price).toLocaleString()}</div>
+        <div class="price-admin">IDR ${parseInt(p.price).toLocaleString()}</div>
         <div>
-          <span class="stock-badge">📦 Stok: ${p.stock}</span>
+          <span class="stock-badge">📦 Stock: ${p.stock}</span>
         </div>
         <div class="admin-actions">
           <button class="btn-edit" data-id="${p.id}">Edit</button>
-          <button class="btn-delete" data-id="${p.id}">Hapus</button>
+          <button class="btn-delete" data-id="${p.id}">Delete</button>
         </div>
       </div>
     `,
@@ -47,7 +47,7 @@ function renderProducts(products) {
     .join("");
 }
 
-// Fungsi Load Data
+// Load Products
 async function loadProduct() {
   const userId = currentUserId || (await checkAuth());
   const res = await fetch(`/api/product/${userId}`);
@@ -55,7 +55,6 @@ async function loadProduct() {
   const allProducts = json.data;
   renderProducts(allProducts);
 
-  // Filter Logic
   document.getElementById("categoryFilter").onchange = function () {
     let val = this.value;
     if (val === "all") return renderProducts(allProducts);
@@ -77,7 +76,7 @@ async function loadOrders() {
       ) || [];
 
     if (orders.length === 0) {
-      container.innerHTML = `<div class="empty-state">Belum ada pesanan masuk.</div>`;
+      container.innerHTML = `<div class="empty-state">No incoming orders.</div>`;
       return;
     }
 
@@ -89,39 +88,40 @@ async function loadOrders() {
           <div class="order-header">
             <div>
               <span class="order-id">#ORD-${o.id}</span>
-              <span class="order-date">${new Date(o.createdAt).toLocaleDateString("id-ID")}</span>
+              <span class="order-date">${new Date(o.createdAt).toLocaleDateString("en-US")}</span>
             </div>
             <span class="status-badge ${statusClass}">${o.status}</span>
           </div>
-          
+
           <div class="order-body">
             <div class="customer-info">
               <strong>${o.customerName}</strong>
               <p>${o.address}</p>
             </div>
             <div class="order-total">
-            <span>Total Tagihan</span>
-            <strong>Rp ${parseInt(o.totalAmount).toLocaleString()}</strong>
+              <span>Total Amount</span>
+              <strong>IDR ${parseInt(o.totalAmount).toLocaleString()}</strong>
             </div>
-            </div>
+          </div>
 
-            <details>
-              <summary>Barang yang dibeli</summary>
-                <div class="order-items" id="order-items-${o.id}">
-                  Memuat...
-                </div>
-            </details>
-            <div class="order-actions">
+          <details>
+            <summary>Purchased Items</summary>
+            <div class="order-items" id="order-items-${o.id}">
+              Loading...
+            </div>
+          </details>
+
+          <div class="order-actions">
             <select class="status-select" data-id="${o.id}">
-            <option value="" disabled selected>Ganti Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Processing">Diproses</option>
-            <option value="Completed">Selesai</option>
-            <option value="Canceled">Batalkan</option>
+              <option value="" disabled selected>Change Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Completed">Completed</option>
+              <option value="Canceled">Cancel</option>
             </select>
             <button class="btn-update-status" data-id="${o.id}">Update</button>
-            </div>
-            </div>
+          </div>
+        </div>
       `;
       })
       .join("");
@@ -130,7 +130,7 @@ async function loadOrders() {
       loadOrderItems(o.id);
     });
   } catch (err) {
-    container.innerHTML = "<p>Gagal memuat pesanan.</p>";
+    container.innerHTML = "<p>Failed to load orders.</p>";
   }
 }
 
@@ -149,13 +149,13 @@ async function loadOrderItems(orderId) {
       <div class="order-item">
         <strong>${item.product.name}</strong>
         <p>x${item.quantity}</p>
-        <p>Rp ${parseInt(item.priceAtTime).toLocaleString()}</p>
+        <p>IDR ${parseInt(item.priceAtTime).toLocaleString()}</p>
       </div>
     `,
       )
       .join("");
   } catch (err) {
-    container.innerText = "Gagal memuat produk";
+    container.innerText = "Failed to load items.";
   }
 }
 
@@ -165,7 +165,7 @@ document.getElementById("orders").addEventListener("click", async (e) => {
     const selectElement = e.target.previousElementSibling;
     const newStatus = selectElement.value;
 
-    if (!newStatus) return alert("Pilih status terlebih dahulu!");
+    if (!newStatus) return alert("Please select a status first.");
 
     try {
       const res = await fetch(`/api/orders/${orderId}/status`, {
@@ -177,16 +177,16 @@ document.getElementById("orders").addEventListener("click", async (e) => {
       });
       const data = await res.json();
       if (data.success) {
-        alert("Status diperbarui!");
+        alert("Status updated successfully!");
         loadOrders();
       }
     } catch (err) {
-      alert("Gagal update status");
+      alert("Failed to update status.");
     }
   }
 });
 
-// --- Manajemen Modal ---
+// Modal Management
 function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
@@ -199,7 +199,7 @@ async function openEditModal(productId) {
   const json = await res.json();
   const product = json.data.find((p) => p.id == productId);
 
-  if (!product) return alert("Produk tidak ditemukan");
+  if (!product) return alert("Product not found.");
 
   document.getElementById("nameEdit").value = product.name;
   document.getElementById("descEdit").value = product.description || "";
@@ -209,20 +209,15 @@ async function openEditModal(productId) {
   document.getElementById("name-product").innerText = product.name;
   document.getElementById("imagePreviewEdit").src = product.imageUrl;
 
-  // Pasang handler submit untuk form edit
   document.getElementById("productFormEdit").onsubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target); // Lebih simpel pakai FormData(target)
+    const formData = new FormData(e.target);
 
-    // Manual append karena ID element berbeda dengan field API
     formData.append("name", document.getElementById("nameEdit").value);
     formData.append("description", document.getElementById("descEdit").value);
     formData.append("price", document.getElementById("priceEdit").value);
     formData.append("stock", document.getElementById("stockEdit").value);
-    formData.append(
-      "categoryId",
-      document.getElementById("categoryEdit").value,
-    );
+    formData.append("categoryId", document.getElementById("categoryEdit").value);
 
     const imageInput = document.getElementById("imageEdit");
     if (imageInput.files[0]) formData.append("image", imageInput.files[0]);
@@ -242,23 +237,20 @@ async function openEditModal(productId) {
   };
 }
 
-// --- Action Handlers ---
 async function handleDelete(productId) {
-  if (!confirm("Yakin ingin menghapus produk ini?")) return;
+  if (!confirm("Are you sure you want to delete this product?")) return;
   const res = await fetch(`/api/product/${productId}`, { method: "DELETE" });
   const json = await res.json();
   if (json.success) {
-    alert("Berhasil dihapus");
+    alert("Product deleted successfully.");
     loadProduct();
   }
 }
 
-// --- Event Listeners (Kunci Refactoring) ---
 document.addEventListener("DOMContentLoaded", async () => {
   await checkAuth();
   loadProduct();
 
-  // 1. Event Delegation untuk tombol Edit & Delete
   document.getElementById("products").addEventListener("click", (e) => {
     const id = e.target.dataset.id;
     if (e.target.classList.contains("btn-edit")) {
@@ -268,21 +260,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // 2. Tombol Logout
   document.getElementById("logout").addEventListener("click", () => {
     localStorage.removeItem("token");
     window.location.href = "/logout/";
   });
 
-  // 3. Tombol Tutup Modal
   document
     .getElementById("btn-close-modal")
     .addEventListener("click", closeModal);
+
   window.addEventListener("click", (e) => {
     if (e.target == document.getElementById("modal")) closeModal();
   });
 
-  // 4. Preview Image
   document.getElementById("image").addEventListener("change", (e) => {
     const img = document.getElementById("imagePreview");
     img.src = URL.createObjectURL(e.target.files[0]);
@@ -295,7 +285,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
   });
 
-  // 5. Form Tambah Produk
   document.getElementById("productForm").onsubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();

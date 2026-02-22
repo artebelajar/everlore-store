@@ -3,10 +3,10 @@ document
   .addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    // Efek loading pada tombol
+    // Loading effect on button
     const btn = e.target.querySelector("button");
     const originalText = btn.innerText;
-    btn.innerText = "Mendaftarkan...";
+    btn.innerText = "Registering...";
     btn.style.opacity = "0.7";
     btn.disabled = true;
 
@@ -25,7 +25,7 @@ document
       const data = await res.json();
 
       if (data.success) {
-        alert("✅ Registrasi berhasil! Silakan login.");
+        alert("✅ Registration successful! Please log in.");
         window.location.href = "/login/";
       } else {
         alert("❌ " + data.message);
@@ -34,7 +34,7 @@ document
         btn.disabled = false;
       }
     } catch (err) {
-      alert("Terjadi kesalahan sistem.");
+      alert("A system error occurred.");
       btn.innerText = originalText;
       btn.style.opacity = "1";
       btn.disabled = false;

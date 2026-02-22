@@ -459,6 +459,87 @@ select option {
   visibility: hidden;
 }
 
+/* Container Utama Item Keranjang */
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: var(--white);
+  border-radius: 15px;
+  border: 1px solid rgba(61, 29, 90, 0.08);
+}
+
+/* Gambar Produk di Keranjang */
+.cart-item img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid var(--light-purple);
+}
+
+.cart-item-info {
+  flex: 1;
+}
+
+.cart-item-name {
+  display: block;
+  font-weight: 700;
+  color: var(--primary-purple);
+  margin-bottom: 4px;
+}
+
+.cart-item-price {
+  display: block;
+  color: var(--secondary-green);
+  font-weight: 800;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+/* KONTROL KUANTITAS YANG LEBIH BAGUS */
+.qty-controls {
+  display: inline-flex;
+  align-items: center;
+  background: var(--light-purple);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(61, 29, 90, 0.1);
+}
+
+.btn-qty {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--white);
+  color: var(--primary-purple);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 0; /* Penting agar icon tidak melenceng */
+}
+
+.btn-qty:hover {
+  background: var(--primary-purple);
+  color: var(--white);
+  transform: translateY(-1px);
+}
+
+.qty-count {
+  margin: 0 12px;
+  font-weight: 800;
+  color: var(--primary-purple);
+  font-size: 0.95rem;
+  min-width: 15px;
+  text-align: center;
+}
+
 /* Class saat sidebar aktif */
 .cart-sidebar.active {
   visibility: visible;

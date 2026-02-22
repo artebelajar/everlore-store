@@ -1,6 +1,7 @@
 let cart = [];
 let allProducts = [];
 
+
 lucide.createIcons();
 
 async function load() {
@@ -15,25 +16,25 @@ document.getElementById("logout").addEventListener("click", function () {
   window.location.href = "/logout/";
 });
 
-window.add = function(id) {
+window.add = function (id) {
   const item = cart.find((c) => c.productId === id);
-  
+
   if (item) {
     item.quantity++;
   } else {
     cart.push({ productId: id, quantity: 1 });
   }
-  
+
   updateCount();
-  
-  const btn = event.currentTarget; 
-  if (btn && btn.classList.contains('btn-add-cart')) {
+
+  const btn = event.currentTarget;
+  if (btn && btn.classList.contains("btn-add-cart")) {
     const originalText = btn.innerHTML;
-    btn.innerText = "✅ Berhasil";
+    btn.innerText = "✅ Added";
     btn.style.background = "var(--secondary-green)";
     setTimeout(() => {
       btn.innerHTML = originalText;
-      btn.style.background = ""; 
+      btn.style.background = "";
     }, 800);
   }
 };
@@ -69,15 +70,9 @@ document.addEventListener("DOMContentLoaded", () => {
   overlay.classList.remove("active");
 
   document.getElementById("btn-cart")?.addEventListener("click", toggleCart);
-  document
-    .getElementById("close-sidebar")
-    ?.addEventListener("click", toggleCart);
-  document
-    .getElementById("sidebarOverlay")
-    ?.addEventListener("click", toggleCart);
-  document
-    .getElementById("btn-continue")
-    ?.addEventListener("click", toggleCart);
+  document.getElementById("close-sidebar")?.addEventListener("click", toggleCart);
+  document.getElementById("sidebarOverlay")?.addEventListener("click", toggleCart);
+  document.getElementById("btn-continue")?.addEventListener("click", toggleCart);
   document.getElementById("btn-checkout")?.addEventListener("click", checkout);
 });
 
@@ -87,7 +82,7 @@ window.add = (id) => {
   else cart.push({ productId: id, quantity: 1 });
   document.getElementById("count").innerText = cart.reduce(
     (a, b) => a + b.quantity,
-    0,
+    0
   );
 };
 
@@ -112,31 +107,27 @@ function renderProducts(products) {
     .map((p) => {
       let category = null;
       const stockClass = p.stock <= 10 ? "low-stock" : "in-stock";
-      const stockText = p.stock > 0 ? `Stok: ${p.stock}` : "Stok Habis";
+      const stockText = p.stock > 0 ? `Stock: ${p.stock}` : "Out of Stock";
 
-      if (p.categoryId === 1) {
-        category = "had";
-      } else if (p.categoryId === 2) {
-        category = "t-shirt";
-      } else if (p.categoryId === 3) {
-        category = "pants";
-      }
+      if (p.categoryId === 1) category = "hat";
+      else if (p.categoryId === 2) category = "t-shirt";
+      else if (p.categoryId === 3) category = "pants";
 
       return `
       <div class="product-card">
         <div class="product-image-wrapper">
           <img src="${p.imageUrl}" alt="${p.name}">
-          <div class="category-badge">${category || "had"}</div>
+          <div class="category-badge">${category || "hat"}</div>
         </div>
         <div class="product-info">
           <div class="stock-status ${stockClass}">${stockText}</div>
           <h3>${p.name}</h3>
-          <p>${p.description || "Koleksi pilihan terbaik Everlore Store."}</p>
+          <p>${p.description || "Everlore Store’s premium curated collection."}</p>
           
           <div class="product-footer">
             <div class="price">Rp ${Number(p.price).toLocaleString("id-ID")}</div>
             <button class="btn-add-cart" onclick="add(${p.id})" ${p.stock <= 0 ? "disabled" : ""}>
-              ${p.stock <= 0 ? "Habis" : "Tambah (+)"}
+              ${p.stock <= 0 ? "Sold Out" : "Add (+)"}
             </button>
           </div>
         </div>
@@ -161,23 +152,60 @@ document
     renderProducts(filtered);
   });
 
+// Fungsi untuk mengubah jumlah (Plus/Minus)
+window.updateQty = (id, delta) => {
+  const item = cart.find(c => c.productId === id);
+  if (item) {
+    item.quantity += delta;
+    
+    // Jika jumlah jadi 0 atau kurang, hapus dari keranjang
+    if (item.quantity <= 0) {
+      cart = cart.filter(c => c.productId !== id);
+    }
+  }
+  
+  updateCount();      // Update angka di icon keranjang
+  renderCartList();   // Re-render isi daftar keranjang
+};
+
 function renderCartList() {
   const list = document.getElementById("cartList");
+  
   if (cart.length === 0) {
-    list.innerHTML =
-      "<p style='text-align:center; padding: 20px; color:#b2bec3;'>Keranjang masih kosong...</p>";
+    list.innerHTML = `
+      <div style="text-align:center; padding: 40px 20px;">
+        <i data-lucide="shopping-basket" style="width:48px; height:48px; color:#ccc; margin-bottom:10px;"></i>
+        <p style='color:#999;'>Keranjangmu masih kosong...</p>
+      </div>`;
+    lucide.createIcons(); // Render ikon basket kosong
     return;
   }
-  list.innerHTML = cart
-    .map((c) => {
-      const p = allProducts.find((x) => x.id === c.productId);
-      return `
-              <div class="cart-item">
-                <span><b style="color:var(--dark-gold)">${c.quantity}x</b> ${p.name}</span>
-                <span style="font-weight:700">Rp ${(p.price * c.quantity).toLocaleString()}</span>
-              </div>`;
-    })
-    .join("");
+
+  list.innerHTML = cart.map((c) => {
+    const p = allProducts.find((x) => x.id === c.productId);
+    if (!p) return "";
+
+    return `
+      <div class="cart-item">
+        <img src="${p.imageUrl}" alt="${p.name}">
+        
+        <div class="cart-item-info">
+          <span class="cart-item-name">${p.name}</span>
+          <span class="cart-item-price">Rp ${(p.price * c.quantity).toLocaleString("id-ID")}</span>
+          
+          <div class="qty-controls">
+            <button class="btn-qty" onclick="updateQty(${p.id}, -1)">
+              <i data-lucide="minus" style="width:16px; height:16px;"></i>
+            </button>
+            <span class="qty-count">${c.quantity}</span>
+            <button class="btn-qty" onclick="updateQty(${p.id}, 1)">
+              <i data-lucide="plus" style="width:16px; height:16px;"></i>
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+  lucide.createIcons();
 }
 
 function startWelcomeSlider() {
@@ -199,7 +227,7 @@ async function checkout() {
   const name = document.getElementById("cName").value;
   const addr = document.getElementById("cAddr").value;
   if (!name || !addr || cart.length === 0)
-    return alert("Lengkapi data diri dan keranjang Anda.");
+    return alert("Please complete your details and cart.");
 
   const res = await fetch("/api/orders", {
     method: "POST",
@@ -213,7 +241,7 @@ async function checkout() {
   const data = await res.json();
 
   if (data.success) {
-    const msg = `Halo Admin, saya mau pesan order ID #${data.orderId}.\n\nTotal: Rp ${data.total.toLocaleString()}\nNama: ${name}\nAlamat: ${addr}`;
+    const msg = `Hello Admin, I would like to place an order.\n\nOrder ID: #${data.orderId}\nTotal: Rp ${data.total.toLocaleString()}\nName: ${name}\nAddress: ${addr}`;
     window.location.href = `https://wa.me/6285752214806?text=${encodeURIComponent(msg)}`;
   }
 }
