@@ -17,7 +17,8 @@ document.getElementById("logout").addEventListener("click", function () {
 });
 
 window.add = function (id) {
-  console.log("berhasil menambahkan product ke keranjang")
+  console.log("add product....")
+  alert("berhasil menambahkan product ke keranjang")
   const item = cart.find((c) => c.productId === id);
 
   if (item) {
