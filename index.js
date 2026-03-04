@@ -90,4 +90,8 @@ app.get("/api/orders/:id/items", async (c) => {
   return c.json({ success: true, data: items });
 });
 
+// const port = 1232;
+// serve({ fetch: app.fetch, port: port });
+// console.log(`Server berjalan di http://localhost:${port}`);
+
 export default app;
