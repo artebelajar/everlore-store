@@ -25,11 +25,11 @@ import { editOrders } from "./src/api/editOrders.js";
 
 const app = new Hono();
 
-app.use("/*", serveStatic({ root: "./public" }));
-
-app.get("/", (c) => c.text("ROOT HIT"));
+// app.use("/*", serveStatic({ root: "./public" }));
 
 app.use("*", cors());
+
+app.get("/", (c) => c.text("ROOT HIT"));
 
 app.post("/api/register", register);
 app.post("/api/login", login);
